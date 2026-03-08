@@ -20,7 +20,7 @@ const gwendolyn = Gwendolyn({
 });
 
 export const metadata: Metadata = {
-  title: "Alnoor Jewellers",
+  title: "Saleem Butt Jewellers",
   description: "Premium Jewellery crafted with excellence",
 };
 

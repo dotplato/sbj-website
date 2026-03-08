@@ -12,7 +12,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 opacity-50">
           <Image
             src="/bridal-sets/Eternal Glow Bridal Set.png"
-            alt="About Alnoor"
+            alt="About Saleem Butt Jewellers"
             fill
             className="object-cover"
           />
