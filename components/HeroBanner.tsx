@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import type { HeroSlide } from "@/lib/types";
 
-const heroSlides = [
+// ─── Fallback data (used when CMS returns nothing) ─────────────────────────
+const fallbackSlides: HeroSlide[] = [
   {
-    id: 1,
+    id: "1",
     video: "/slider-video-1.mp4",
     subtitle: "Timeless Elegance",
     title: "Heritage Bridal\nCollection",
@@ -14,7 +15,7 @@ const heroSlides = [
       "Experience the grandeur of royalty with our hand-picked heritage bridal pieces, crafted to perfection.",
   },
   {
-    id: 2,
+    id: "2",
     video: "/slider-video-2.mp4",
     subtitle: "Magnificent Luxury",
     title: "Exquisite\nGold Sets",
@@ -22,7 +23,7 @@ const heroSlides = [
       "Discover our exclusive collection of gold sets crafted with passion and precision for every occasion.",
   },
   {
-    id: 3,
+    id: "3",
     video: "/slider-video-3.mp4",
     subtitle: "Classic Grace",
     title: "Timeless\nMala Designs",
@@ -31,9 +32,15 @@ const heroSlides = [
   },
 ];
 
-const SWIPE_THRESHOLD = 50; // px minimum drag to trigger slide change
+const SWIPE_THRESHOLD = 50;
 
-export default function HeroBanner() {
+interface HeroBannerProps {
+  slides?: HeroSlide[];
+}
+
+export default function HeroBanner({ slides }: HeroBannerProps) {
+  const heroSlides = slides && slides.length > 0 ? slides : fallbackSlides;
+
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -54,11 +61,11 @@ export default function HeroBanner() {
 
   const next = useCallback(() => {
     goTo((current + 1) % heroSlides.length);
-  }, [current, goTo]);
+  }, [current, goTo, heroSlides.length]);
 
   const prev = useCallback(() => {
     goTo((current - 1 + heroSlides.length) % heroSlides.length);
-  }, [current, goTo]);
+  }, [current, goTo, heroSlides.length]);
 
   // Handle playing the current video
   useEffect(() => {
@@ -66,9 +73,7 @@ export default function HeroBanner() {
       if (video) {
         if (i === current) {
           video.currentTime = 0;
-          video.play().catch(() => {
-            // Handle or ignore play interruptions
-          });
+          video.play().catch(() => {});
         } else {
           video.pause();
         }
@@ -78,7 +83,7 @@ export default function HeroBanner() {
 
   // Auto-play
   useEffect(() => {
-    const timer = setInterval(next, 7000); // Slightly longer for video content
+    const timer = setInterval(next, 7000);
     return () => clearInterval(timer);
   }, [next]);
 
@@ -121,20 +126,16 @@ export default function HeroBanner() {
   return (
     <section className="hero-outer relative w-full overflow-hidden bg-black select-none -mt-14 sm:-mt-16 lg:-mt-[73px]">
       <style>{`
-        /* Mobile: slightly smaller ratio + navbar offset */
         .hero-outer {
           height: 0;
           padding-bottom: calc(100% + 56px);
         }
-        /* Tablet 640px+: slightly smaller 16:9 + navbar offset */
         @media (min-width: 640px) {
           .hero-outer { padding-bottom: calc(60% + 64px); }
         }
-        /* Desktop 1024px+: slightly smaller + navbar offset */
         @media (min-width: 1024px) {
           .hero-outer { padding-bottom: calc(50% + 73px); max-height: 750px; }
         }
-        /* Grab cursor while dragging */
         .hero-drag { cursor: grab; }
         .hero-drag:active { cursor: grabbing; }
       `}</style>
@@ -161,7 +162,9 @@ export default function HeroBanner() {
             aria-hidden={i !== current}
           >
             <video
-              ref={(el) => { videoRefs.current[i] = el; }}
+              ref={(el) => {
+                videoRefs.current[i] = el;
+              }}
               src={slide.video}
               autoPlay={i === current}
               muted
@@ -170,7 +173,6 @@ export default function HeroBanner() {
               className="absolute inset-0 w-full h-full object-cover"
               style={{ filter: "brightness(0.7)" }}
             />
-            {/* Left→right gradient */}
             <div
               className="absolute inset-0"
               style={{
@@ -178,7 +180,6 @@ export default function HeroBanner() {
                   "linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.08) 100%)",
               }}
             />
-            {/* Bottom vignette */}
             <div
               className="absolute inset-0"
               style={{
@@ -189,9 +190,7 @@ export default function HeroBanner() {
           </div>
         ))}
 
-        {/* ── Slide Content ──
-            Left padding: arrow width (28px) + gap (8px) + breathing room → ~56px mobile, ~72px sm+
-            Right padding: same concept but lighter since text is on the left  */}
+        {/* ── Slide Content ── */}
         {heroSlides.map((slide, i) => (
           <div
             key={slide.id}
@@ -328,7 +327,7 @@ export default function HeroBanner() {
           </div>
         ))}
 
-        {/* ── Prev Arrow (small, hugging the far-left edge) ── */}
+        {/* ── Prev Arrow ── */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -368,7 +367,7 @@ export default function HeroBanner() {
           </svg>
         </button>
 
-        {/* ── Next Arrow (small, hugging the far-right edge) ── */}
+        {/* ── Next Arrow ── */}
         <button
           onClick={(e) => {
             e.stopPropagation();

@@ -6,25 +6,44 @@ import WeddingGallery from "@/components/WeddingGallery";
 import ReviewsSection from "@/components/ReviewsSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import SectionReveal from "@/components/SectionReveal";
+import {
+  getHeroSlides,
+  getVideoHero,
+  getCategories,
+  getProducts,
+  getWeddingGallery,
+} from "@/lib/contentful";
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  // Fetch all CMS data in parallel (server-side)
+  const [heroSlides, videoHeroData, categories, products, galleryItems] =
+    await Promise.all([
+      getHeroSlides(),
+      getVideoHero(),
+      getCategories(),
+      getProducts(),
+      getWeddingGallery(),
+    ]);
+
   return (
     <div className="min-h-screen bg-white">
-      <HeroBanner />
+      <HeroBanner slides={heroSlides} />
       <SectionReveal>
-        <ProductShowcase />
+        <ProductShowcase products={products} />
       </SectionReveal>
       <SectionReveal>
-        <VideoHero />
+        <VideoHero data={videoHeroData} />
       </SectionReveal>
       <SectionReveal>
         <FeaturesSection />
       </SectionReveal>
       <SectionReveal>
-        <FeaturedCategories />
+        <FeaturedCategories categories={categories} />
       </SectionReveal>
       <SectionReveal>
-        <WeddingGallery />
+        <WeddingGallery items={galleryItems} />
       </SectionReveal>
       <SectionReveal>
         <ReviewsSection />
