@@ -49,7 +49,7 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-14 sm:pt-16 lg:pt-[73px]">
       {/* Page Header */}
       <section className="bg-gray-50 py-20 px-4 text-center">
         <p className="text-xs font-semibold tracking-[0.3em] uppercase text-[#C6A15B] mb-3">

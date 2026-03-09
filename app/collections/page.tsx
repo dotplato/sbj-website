@@ -44,7 +44,7 @@ function CollectionsContent() {
       : "Exquisite Collections";
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-14 sm:pt-16 lg:pt-[73px]">
       {/* Hero Section */}
       <section
         className="relative h-[35vh] flex items-center justify-center text-center px-4 transition-colors duration-500"
@@ -103,7 +103,7 @@ function CollectionsContent() {
       {/* Category Filter Pills (Mobile/Quick Access) */}
       <div className="bg-gray-50 py-4 overflow-x-auto whitespace-nowrap px-4 sm:px-8 lg:px-16 border-b border-gray-100 scrollbar-hide">
         <div className="max-w-7xl mx-auto flex gap-4">
-            <Link
+          <Link
             href="/collections"
             className={`px-6 py-2 text-[10px] tracking-widest uppercase rounded-full border transition-all ${!activeCategory ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-500 border-gray-200 hover:border-[#C6A15B]"}`}
           >

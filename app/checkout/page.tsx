@@ -79,7 +79,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <main className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8 pt-14 sm:pt-16 lg:pt-[85px]">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-fancy text-gray-900 mb-8 border-b border-gray-200 pb-4">
           Checkout
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
                         <span>Subtotal</span>
                         <span>Rs.{totalPrice.toLocaleString()}</span>
                       </div>
-                          <div className="flex justify-between text-sm text-gray-600">
+                      <div className="flex justify-between text-sm text-gray-600">
                         <span>Shipping</span>
                         <span className="text-green-600 font-medium uppercase tracking-widest text-[10px]">
                           Free

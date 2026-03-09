@@ -12,7 +12,7 @@ export default function SalePage() {
   const saleProducts = products.filter((p: Product) => p.isOnSale);
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-14 sm:pt-16 lg:pt-[73px]">
       {/* Hero Section */}
       <section className="relative h-[35vh] bg-red-900 flex items-center justify-center text-center px-4">
         <div className="absolute inset-0 opacity-40">

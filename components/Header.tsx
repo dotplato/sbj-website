@@ -14,6 +14,7 @@ export default function Header() {
   const [isJwrOpen, setIsJwrOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
   const { openCart, totalItems } = useCart();
   const router = useRouter();
   const headerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,15 @@ export default function Header() {
       setIsSearchOpen(false);
     }
   };
+
+  // Track scroll position for transparent → white transition
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -53,19 +63,14 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 bg-white border-b border-gray-200"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled
+        ? "bg-white border-b border-gray-200 shadow-sm"
+        : "bg-transparent border-b border-transparent"
+        }`}
     >
       <div className="mx-auto px-3 sm:px-6 lg:px-8">
         {/* Top promotional bar */}
-        <div
-          className="text-white text-center py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-widest uppercase px-1"
-          style={{ backgroundColor: "#C6A15B" }}
-        >
-          Free Shipping on Orders Above $1000{" "}
-          <span className="hidden xs:inline">&nbsp;|&nbsp;</span>
-          <br className="block xs:hidden" />
-          100% Payment Secure
-        </div>
+
 
         {/* Main header */}
         <div className="flex items-center justify-between py-3 sm:py-4 lg:py-5 gap-2">
@@ -75,21 +80,21 @@ export default function Header() {
             className="flex-shrink-0"
             onClick={() => setIsMenuOpen(false)}
           >
-              <Image
-                src="/alnoor logo.svg"
-                alt="Alnoor Jewellers"
-                width={200}
-                height={60}
-                className="h-8 w-auto sm:h-10 lg:h-14"
-                priority
-              />
+            <Image
+              src="/logo/logo-full.png"
+              alt="SBJ"
+              width={200}
+              height={60}
+              className="h-8 w-auto sm:h-10 lg:h-14"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/"
-              className="text-sm font-medium text-gray-600 hover:text-[#C6A15B] transition-colors tracking-wide"
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
             >
               Home
             </Link>
@@ -97,7 +102,7 @@ export default function Header() {
             {/* Jewelry Dropdown trigger */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-[#C6A15B] transition-colors tracking-wide"
+                className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
                 onMouseEnter={() => setIsJwrOpen(true)}
                 onClick={() => setIsJwrOpen(!isJwrOpen)}
               >
@@ -106,11 +111,10 @@ export default function Header() {
 
               {/* Mega-style dropdown or direct list */}
               <div
-                className={`absolute left-0 mt-4 w-64 bg-white border border-gray-100 shadow-xl py-4 transition-all duration-300 transform ${
-                  isJwrOpen
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-2 pointer-events-none"
-                }`}
+                className={`absolute left-0 mt-4 w-64 bg-white border border-gray-100 shadow-xl py-4 transition-all duration-300 transform ${isJwrOpen
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2 pointer-events-none"
+                  }`}
                 onMouseLeave={() => setIsJwrOpen(false)}
               >
                 {categories.map((cat) => (
@@ -136,26 +140,26 @@ export default function Header() {
             </div>
             <Link
               href="/sale"
-              className="text-sm font-bold text-red-600 hover:text-red-700 transition-colors tracking-wide uppercase"
+              className={`text-sm font-bold transition-colors tracking-wide uppercase ${isScrolled ? "text-red-600 hover:text-red-700" : "text-red-400 hover:text-red-300"}`}
             >
               Sale
             </Link>
             <Link
               href="/about"
-              className="text-sm font-medium text-gray-600 hover:text-[#C6A15B] transition-colors tracking-wide"
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
             >
               About
             </Link>
             <Link
               href="/contact"
-              className="text-sm font-medium text-gray-600 hover:text-[#C6A15B] transition-colors tracking-wide"
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
             >
               Contact
             </Link>
           </nav>
 
           {/* Right icons */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className={`flex items-center gap-2 sm:gap-3 ${isScrolled ? "text-gray-700" : "text-white"}`}>
             {/* Search Bar */}
             <div
               className={`flex items-center transition-all duration-300 ${isSearchOpen ? "w-48 sm:w-64 opacity-100" : "w-0 opacity-0 overflow-hidden"}`}
@@ -167,7 +171,7 @@ export default function Header() {
                   placeholder="Search gems..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-100 rounded-full py-1.5 px-4 text-xs focus:outline-none focus:border-[#C6A15B] transition-all"
+                  className={`w-full border rounded-full py-1.5 px-4 text-xs focus:outline-none focus:border-[#C6A15B] transition-all ${isScrolled ? "bg-gray-50 border-gray-100" : "bg-white/20 border-white/40 text-white placeholder:text-white/70"}`}
                 />
               </form>
             </div>
@@ -175,7 +179,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:text-[#C6A15B]"
+              className="text-inherit hover:text-[#C6A15B]"
               onClick={() => {
                 setIsSearchOpen(!isSearchOpen);
                 if (!isSearchOpen) {
@@ -192,14 +196,14 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:text-[#C6A15B]"
+              className="text-inherit hover:text-[#C6A15B]"
             >
               <User className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="relative hover:text-[#C6A15B]"
+              className="relative text-inherit hover:text-[#C6A15B]"
               onClick={openCart}
             >
               <ShoppingCart className="h-5 w-5" />
@@ -231,7 +235,7 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden pb-4 space-y-1 border-t border-gray-100 pt-3 animate-in slide-in-from-top duration-300">
+          <nav className="md:hidden pb-4 space-y-1 border-t border-gray-100 pt-3 animate-in slide-in-from-top duration-300 bg-white">
             <Link
               href="/"
               onClick={() => setIsMenuOpen(false)}

@@ -6,7 +6,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-14 sm:pt-16 lg:pt-[73px]">
       {/* Hero Section */}
       <section className="relative h-[60vh] bg-gray-900 flex items-center justify-center text-center px-4">
         <div className="absolute inset-0 opacity-50">
@@ -35,7 +35,7 @@ export default function AboutPage() {
       {/* Story Section */}
       <section className="py-24 px-4 sm:px-8 lg:px-16 container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="relative aspect-square">
+          <div className="relative aspect-square">
             <Image
               src="/bridal-sets/Eternal Glow Bridal Set.png"
               alt="Crafstmanship"

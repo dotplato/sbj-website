@@ -102,20 +102,20 @@ export default function HeroBanner() {
   };
 
   return (
-    <section className="hero-outer relative w-full overflow-hidden bg-black select-none">
+    <section className="hero-outer relative w-full overflow-hidden bg-black select-none -mt-14 sm:-mt-16 lg:-mt-[73px]">
       <style>{`
-        /* Mobile default: 4:3 */
+        /* Mobile: taller ratio + navbar offset */
         .hero-outer {
           height: 0;
-          padding-bottom: 75%;
+          padding-bottom: calc(120% + 56px);
         }
-        /* Tablet 640px+: 16:9 */
+        /* Tablet 640px+: taller 16:9 + navbar offset */
         @media (min-width: 640px) {
-          .hero-outer { padding-bottom: 56.25%; }
+          .hero-outer { padding-bottom: calc(70% + 64px); }
         }
-        /* Desktop 1024px+: More compact, capped at 540px */
+        /* Desktop 1024px+: taller + navbar offset */
         @media (min-width: 1024px) {
-          .hero-outer { padding-bottom: 38%; max-height: 540px; }
+          .hero-outer { padding-bottom: calc(52% + 73px); max-height: 900px; }
         }
         /* Grab cursor while dragging */
         .hero-drag { cursor: grab; }
@@ -181,6 +181,8 @@ export default function HeroBanner() {
             style={{
               paddingLeft: "clamp(56px, 10%, 120px)",
               paddingRight: "clamp(56px, 8%,  80px)",
+              paddingTop: "clamp(4.5rem, 6vw, 6rem)",
+              paddingBottom: "clamp(2.5rem, 4vw, 4rem)",
               opacity: i === current ? 1 : 0,
               transform: i === current ? "translateY(0)" : "translateY(20px)",
               transition: "opacity 0.7s ease, transform 0.7s ease",
