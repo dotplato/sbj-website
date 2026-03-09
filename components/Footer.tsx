@@ -33,14 +33,14 @@ export default function Footer() {
             {/* About Section */}
             <div className="space-y-6">
               <Image
-                src="/alnoor logo.svg"
-                alt="Alnoor Jewellers"
+                src="/logo/logo-full.png"
+                alt="SBJ"
                 width={180}
                 height={50}
-                className="h-10 w-auto brightness-0 invert"
+                className="h-12 w-auto"
               />
               <p className="text-gray-400 text-sm leading-relaxed">
-                Alnoor Jewellers redefines luxury with contemporary elegance.
+                Saleem Butt Jewellers redefines luxury with contemporary elegance.
                 Each piece is a fusion of modern design and masterful
                 craftsmanship. Indulge in jewellery that exudes prestige, style,
                 and sophistication.
@@ -63,13 +63,13 @@ export default function Footer() {
                   <span>Phone: +1 905 904 0067</span>
                 </a>
                 <a
-                  href="mailto:newalnoorjewel@gmail.com"
+                  href="mailto:info@saleembuttjewellers.com"
                   className="text-gray-400 hover:text-[#c8a97e] text-sm flex items-center gap-3 transition-colors group"
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-[#c8a97e] group-hover:text-black transition-all">
                     <Mail className="h-4 w-4" />
                   </div>
-                  <span>Gmail: newalnoorjewel@gmail.com</span>
+                  <span>Email: info@saleembuttjewellers.com</span>
                 </a>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function Footer() {
           {/* Bottom Copyright */}
           <div className="border-t border-gray-800 pt-8 mt-8 text-center">
             <p className="text-gray-500 text-xs tracking-widest uppercase">
-              © 2025 All Rights Reserved. Al Noor Jewellers
+              © 2025 All Rights Reserved. Saleem Butt Jewellers
             </p>
           </div>
         </div>

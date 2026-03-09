@@ -115,7 +115,7 @@ export default function ContactPage() {
                       Email
                     </h3>
                     <p className="text-gray-600 text-sm">
-                      newalnoorjewel@gmail.com
+                      info@saleembuttjewellers.com
                     </p>
                   </div>
                 </div>

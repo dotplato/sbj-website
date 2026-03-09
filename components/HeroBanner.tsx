@@ -7,7 +7,7 @@ import Link from "next/link";
 const heroSlides = [
   {
     id: 1,
-    image: "/j1.png",
+    video: "/slider-video-1.mp4",
     subtitle: "Timeless Elegance",
     title: "Heritage Bridal\nCollection",
     description:
@@ -15,7 +15,7 @@ const heroSlides = [
   },
   {
     id: 2,
-    image: "/j2.png",
+    video: "/slider-video-2.mp4",
     subtitle: "Magnificent Luxury",
     title: "Exquisite\nGold Sets",
     description:
@@ -23,7 +23,7 @@ const heroSlides = [
   },
   {
     id: 3,
-    image: "/j3.png",
+    video: "/slider-video-3.mp4",
     subtitle: "Classic Grace",
     title: "Timeless\nMala Designs",
     description:
@@ -36,6 +36,7 @@ const SWIPE_THRESHOLD = 50; // px minimum drag to trigger slide change
 export default function HeroBanner() {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // Drag / swipe tracking
   const dragStartX = useRef<number | null>(null);
@@ -59,9 +60,25 @@ export default function HeroBanner() {
     goTo((current - 1 + heroSlides.length) % heroSlides.length);
   }, [current, goTo]);
 
+  // Handle playing the current video
+  useEffect(() => {
+    videoRefs.current.forEach((video, i) => {
+      if (video) {
+        if (i === current) {
+          video.currentTime = 0;
+          video.play().catch(() => {
+            // Handle or ignore play interruptions
+          });
+        } else {
+          video.pause();
+        }
+      }
+    });
+  }, [current]);
+
   // Auto-play
   useEffect(() => {
-    const timer = setInterval(next, 5000);
+    const timer = setInterval(next, 7000); // Slightly longer for video content
     return () => clearInterval(timer);
   }, [next]);
 
@@ -104,18 +121,18 @@ export default function HeroBanner() {
   return (
     <section className="hero-outer relative w-full overflow-hidden bg-black select-none -mt-14 sm:-mt-16 lg:-mt-[73px]">
       <style>{`
-        /* Mobile: taller ratio + navbar offset */
+        /* Mobile: slightly smaller ratio + navbar offset */
         .hero-outer {
           height: 0;
-          padding-bottom: calc(120% + 56px);
+          padding-bottom: calc(100% + 56px);
         }
-        /* Tablet 640px+: taller 16:9 + navbar offset */
+        /* Tablet 640px+: slightly smaller 16:9 + navbar offset */
         @media (min-width: 640px) {
-          .hero-outer { padding-bottom: calc(70% + 64px); }
+          .hero-outer { padding-bottom: calc(60% + 64px); }
         }
-        /* Desktop 1024px+: taller + navbar offset */
+        /* Desktop 1024px+: slightly smaller + navbar offset */
         @media (min-width: 1024px) {
-          .hero-outer { padding-bottom: calc(52% + 73px); max-height: 900px; }
+          .hero-outer { padding-bottom: calc(50% + 73px); max-height: 750px; }
         }
         /* Grab cursor while dragging */
         .hero-drag { cursor: grab; }
@@ -132,7 +149,7 @@ export default function HeroBanner() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* ── Slides (images + overlays) ── */}
+        {/* ── Slides (videos + overlays) ── */}
         {heroSlides.map((slide, i) => (
           <div
             key={slide.id}
@@ -143,14 +160,15 @@ export default function HeroBanner() {
             }}
             aria-hidden={i !== current}
           >
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className="object-cover object-center"
-              draggable={false}
+            <video
+              ref={(el) => { videoRefs.current[i] = el; }}
+              src={slide.video}
+              autoPlay={i === current}
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ filter: "brightness(0.7)" }}
             />
             {/* Left→right gradient */}
             <div
@@ -391,7 +409,7 @@ export default function HeroBanner() {
         </button>
 
         {/* ── Dot Indicators ── */}
-        <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className="absolute bottom-3 sm:bottom-9 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           {heroSlides.map((_, i) => (
             <button
               key={i}

@@ -26,7 +26,7 @@ export default function AboutPage() {
           </h1>
           <div className="w-20 h-px bg-[var(--brand-gold)] mx-auto mb-6" />
           <p className="text-gray-200 text-lg leading-relaxed font-light">
-            Alnoor Jewellers has been at the forefront of exquisite
+            Saleem Butt Jewellers has been at the forefront of exquisite
             craftsmanship and timeless designs for over three decades.
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function AboutPage() {
             </div>
 
             <p className="text-gray-600 leading-relaxed text-lg">
-              Each piece at Alnoor Jewellers is a masterpiece, meticulously
+              Each piece at Saleem Butt Jewellers is a masterpiece, meticulously
               handcrafted by our master artisans who have inherited
               centuries-old techniques. We believe that jewelry is not just an
               accessory, but a celebration of life's most precious moments.
@@ -125,7 +125,7 @@ export default function AboutPage() {
             </h3>
             <p className="text-gray-500 leading-relaxed text-sm">
               Purity in materials, precision in craft, and integrity in service.
-              These are the pillars that stand behind every Alnoor creation.
+              These are the pillars that stand behind every Saleem Butt Jewellers creation.
             </p>
           </div>
         </div>

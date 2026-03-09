@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, User, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -17,6 +17,10 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { openCart, totalItems } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  // Navbar is transparent only on homepage when not scrolled
+  const isTransparent = isHome && !isScrolled;
   const headerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,9 +67,9 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled
-        ? "bg-white border-b border-gray-200 shadow-sm"
-        : "bg-transparent border-b border-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isTransparent
+        ? "bg-transparent border-b border-transparent"
+        : "bg-white border-b border-gray-200 shadow-sm"
         }`}
     >
       <div className="mx-auto px-3 sm:px-6 lg:px-8">
@@ -94,7 +98,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/"
-              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isTransparent ? "text-white" : "text-gray-600"}`}
             >
               Home
             </Link>
@@ -102,7 +106,7 @@ export default function Header() {
             {/* Jewelry Dropdown trigger */}
             <div className="relative group">
               <button
-                className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
+                className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isTransparent ? "text-white" : "text-gray-600"}`}
                 onMouseEnter={() => setIsJwrOpen(true)}
                 onClick={() => setIsJwrOpen(!isJwrOpen)}
               >
@@ -140,26 +144,26 @@ export default function Header() {
             </div>
             <Link
               href="/sale"
-              className={`text-sm font-bold transition-colors tracking-wide uppercase ${isScrolled ? "text-red-600 hover:text-red-700" : "text-red-400 hover:text-red-300"}`}
+              className={`text-sm font-bold transition-colors tracking-wide uppercase ${isTransparent ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
             >
               Sale
             </Link>
             <Link
               href="/about"
-              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isTransparent ? "text-white" : "text-gray-600"}`}
             >
               About
             </Link>
             <Link
               href="/contact"
-              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isScrolled ? "text-gray-600" : "text-white"}`}
+              className={`text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isTransparent ? "text-white" : "text-gray-600"}`}
             >
               Contact
             </Link>
           </nav>
 
           {/* Right icons */}
-          <div className={`flex items-center gap-2 sm:gap-3 ${isScrolled ? "text-gray-700" : "text-white"}`}>
+          <div className={`flex items-center gap-2 sm:gap-3 ${isTransparent ? "text-white" : "text-gray-700"}`}>
             {/* Search Bar */}
             <div
               className={`flex items-center transition-all duration-300 ${isSearchOpen ? "w-48 sm:w-64 opacity-100" : "w-0 opacity-0 overflow-hidden"}`}

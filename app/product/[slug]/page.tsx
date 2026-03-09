@@ -46,7 +46,7 @@ const getExtendedDetails = (slug: string) => {
         "Yellow Gold Electroplated",
       ],
       body: [
-        "Al Noor Jewellers provides top-notch quality in all of its products. Prioritizing customer satisfaction and demands, we give the best after-sale service.",
+        "Saleem Butt Jewellers provides top-notch quality in all of its products. Prioritizing customer satisfaction and demands, we give the best after-sale service.",
         "All our Silver Jewellery products are repairable, exchangeable, and refundable on an unlimited-time basis.",
         "We provide,",
         "Exchange: 50% value of the sale price.",
@@ -155,11 +155,10 @@ function ProductDetail({ product, slug }: { product: any; slug: string }) {
                 key={i}
                 onMouseEnter={() => setActiveImg(i)}
                 onClick={() => setActiveImg(i)}
-                className={`relative shrink-0 w-[70px] h-[70px] lg:w-[80px] lg:h-[80px] border-2 transition-all duration-200 ${
-                  activeImg === i
+                className={`relative shrink-0 w-[70px] h-[70px] lg:w-[80px] lg:h-[80px] border-2 transition-all duration-200 ${activeImg === i
                     ? "border-[#C6A15B]"
                     : "border-gray-200 hover:border-[#C6A15B]"
-                }`}
+                  }`}
               >
                 <Image
                   src={img}
@@ -234,11 +233,10 @@ function ProductDetail({ product, slug }: { product: any; slug: string }) {
                   <button
                     key={opt}
                     onClick={() => setSelectedOption(opt)}
-                    className={`px-4 py-2 text-sm border rounded-full transition-all ${
-                      selectedOption === opt
+                    className={`px-4 py-2 text-sm border rounded-full transition-all ${selectedOption === opt
                         ? "bg-gray-900 text-white border-gray-900"
                         : "bg-white text-gray-700 border-gray-300"
-                    }`}
+                      }`}
                   >
                     {opt}
                   </button>

@@ -11,17 +11,27 @@ export default function VideoHero() {
 
   // Intersection Observer for auto-play when in view
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let playPromise: Promise<void> | undefined;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          if (videoRef.current) {
-            videoRef.current.play();
-          }
+          playPromise = video.play();
         } else {
           setIsVisible(false);
-          if (videoRef.current) {
-            videoRef.current.pause();
+          // Wait for play() to resolve before pausing to avoid AbortError
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => video.pause())
+              .catch(() => {
+                // play() was already interrupted — safe to ignore
+              });
+          } else {
+            video.pause();
           }
         }
       },
@@ -33,8 +43,10 @@ export default function VideoHero() {
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      observer.disconnect();
+      // Clean up on unmount
+      if (playPromise !== undefined) {
+        playPromise.then(() => video.pause()).catch(() => { });
       }
     };
   }, []);
@@ -54,7 +66,7 @@ export default function VideoHero() {
         preload="metadata"
       >
         <source
-          src="https://videos.pexels.com/video-files/3394650/3394650-hd_1920_1080_25fps.mp4"
+          src="/video-hero.mp4"
           type="video/mp4"
         />
         Your browser does not support the video tag.
