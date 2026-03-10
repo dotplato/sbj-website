@@ -28,20 +28,23 @@ function CollectionsContent({
       ? categoryMeta[activeCategory]
       : categoryMeta["default"] || {};
 
-  // Normalize: trim + lowercase for safe comparison
   const normalizedActive = activeCategory?.trim().toLowerCase();
 
+  // 🔹 safer filtering
   let filteredProducts = normalizedActive
-    ? products.filter(
-        (p) => p.category.trim().toLowerCase() === normalizedActive,
+    ? products.filter((p) =>
+        (p.category || "")
+          .trim()
+          .toLowerCase()
+          .includes(normalizedActive),
       )
     : products;
 
   if (searchQuery) {
     filteredProducts = filteredProducts.filter(
       (p) =>
-        p.name.toLowerCase().includes(searchQuery) ||
-        p.category.toLowerCase().includes(searchQuery),
+        p.name?.toLowerCase().includes(searchQuery) ||
+        p.category?.toLowerCase().includes(searchQuery),
     );
   }
 
@@ -72,6 +75,7 @@ function CollectionsContent({
             />
           </div>
         )}
+
         <div className="relative z-10">
           <p className="text-xs font-semibold tracking-[0.3em] uppercase text-[#C6A15B] mb-3">
             {heroSubtitle}
@@ -94,7 +98,9 @@ function CollectionsContent({
               Home
             </Link>
           </li>
+
           <li className="text-gray-200">›</li>
+
           <li>
             <Link
               href="/collections"
@@ -103,6 +109,7 @@ function CollectionsContent({
               Collections
             </Link>
           </li>
+
           {activeCategory && (
             <>
               <li className="text-gray-200">›</li>
@@ -112,20 +119,29 @@ function CollectionsContent({
         </ol>
       </nav>
 
-      {/* Category Filter Pills */}
+      {/* Category Pills */}
       <div className="bg-gray-50 py-4 overflow-x-auto whitespace-nowrap px-4 sm:px-8 lg:px-16 border-b border-gray-100 scrollbar-hide">
         <div className="max-w-7xl mx-auto flex gap-4">
           <Link
             href="/collections"
-            className={`px-6 py-2 text-[10px] tracking-widest uppercase rounded-full border transition-all ${!activeCategory ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-500 border-gray-200 hover:border-[#C6A15B]"}`}
+            className={`px-6 py-2 text-[10px] tracking-widest uppercase rounded-full border transition-all ${
+              !activeCategory
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-500 border-gray-200 hover:border-[#C6A15B]"
+            }`}
           >
             All
           </Link>
-          {categoryNames.map((cat: string) => (
+
+          {categoryNames.map((cat) => (
             <Link
               key={cat}
               href={`/collections?category=${encodeURIComponent(cat)}`}
-              className={`px-6 py-2 text-[10px] tracking-widest uppercase rounded-full border transition-all ${activeCategory === cat ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-500 border-gray-200 hover:border-[#C6A15B]"}`}
+              className={`px-6 py-2 text-[10px] tracking-widest uppercase rounded-full border transition-all ${
+                activeCategory === cat
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-[#C6A15B]"
+              }`}
             >
               {cat}
             </Link>
@@ -136,13 +152,13 @@ function CollectionsContent({
       <SectionReveal>
         <section className="py-16 px-4 sm:px-8 lg:px-16 container mx-auto max-w-7xl">
           {activeCategory || searchQuery ? (
-            /* Flattened view for single category or search results */
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
+
               {filteredProducts.length === 0 && (
                 <div className="text-center py-20 bg-gray-50">
                   <p className="text-gray-400 italic">
@@ -154,21 +170,24 @@ function CollectionsContent({
               )}
             </div>
           ) : (
-            /* Grouped view for "All" */
             <div className="space-y-24">
-              {categoryNames.map((cat: string) => {
-                const catProducts = products.filter(
-                  (p) =>
-                    p.category.trim().toLowerCase() ===
-                    cat.trim().toLowerCase(),
+              {categoryNames.map((cat) => {
+                const catProducts = products.filter((p) =>
+                  (p.category || "")
+                    .trim()
+                    .toLowerCase()
+                    .includes(cat.trim().toLowerCase()),
                 );
+
                 if (catProducts.length === 0) return null;
+
                 return (
                   <div key={cat} className="space-y-10">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                       <h2 className="text-xl font-bold text-gray-900 uppercase tracking-widest">
                         {cat}
                       </h2>
+
                       <Link
                         href={`/collections?category=${encodeURIComponent(cat)}`}
                         className="text-xs font-semibold text-[#C6A15B] hover:underline underline-offset-4 tracking-widest uppercase"
@@ -176,6 +195,7 @@ function CollectionsContent({
                         Browse All
                       </Link>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
                       {catProducts.slice(0, 4).map((product) => (
                         <ProductCard key={product.id} product={product} />
@@ -197,24 +217,33 @@ function CollectionsContent({
 }
 
 function ProductCard({ product }: { product: ProductData }) {
-  // Sale-aware price display
   const displayPrice =
     product.isOnSale && product.salePrice ? product.salePrice : product.price;
+
   const crossedOutPrice = product.isOnSale
     ? product.originalPrice || product.price
     : undefined;
 
-  return (
-    <Link href={`/product/${product.slug}`} className="group">
-      <div className="relative aspect-[4/5] bg-[#fcfcfc] overflow-hidden mb-4 border border-gray-50 flex items-center justify-center">
-        <Image
-          src={product.images[0]}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
-        />
+  // 🔹 slug fallback
+  const safeSlug =
+    product.slug ||
+    product.name
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-        {/* Sale / New tag */}
+  return (
+    <Link href={`/product/${safeSlug}`} className="group">
+      <div className="relative aspect-[4/5] bg-[#fcfcfc] overflow-hidden mb-4 border border-gray-50 flex items-center justify-center">
+        {product.images?.[0] && (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+          />
+        )}
+
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {product.isOnSale ? (
             <span className="bg-red-600 text-white text-[9px] font-bold tracking-widest uppercase px-3 py-1 shadow-sm">
@@ -226,28 +255,26 @@ function ProductCard({ product }: { product: ProductData }) {
             </span>
           )}
         </div>
-
-        {/* Quick Add Overlay */}
-        <div className="absolute bottom-4 left-4 right-4 translate-y-6 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-          <div className="w-full bg-white/95 backdrop-blur-sm text-gray-900 py-3 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg hover:bg-[#C6A15B] hover:text-white transition-colors border-none text-center flex items-center justify-center cursor-pointer">
-            View Details
-          </div>
-        </div>
       </div>
 
       <div className="text-center px-2">
         <p className="text-[9px] tracking-[0.25em] uppercase text-[#C6A15B] mb-1.5 font-bold">
           {product.category}
         </p>
+
         <h3 className="text-xs font-medium text-gray-800 group-hover:text-[#C6A15B] transition-colors mb-2 leading-relaxed tracking-wide px-4">
           {product.name}
         </h3>
+
         <div className="flex items-center justify-center gap-2">
           <p
-            className={`text-sm font-bold ${product.isOnSale ? "text-red-600" : "text-gray-900"}`}
+            className={`text-sm font-bold ${
+              product.isOnSale ? "text-red-600" : "text-gray-900"
+            }`}
           >
             {displayPrice}
           </p>
+
           {product.isOnSale &&
             crossedOutPrice &&
             crossedOutPrice !== displayPrice && (

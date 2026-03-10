@@ -3,76 +3,38 @@
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import type { CategoryData } from "@/lib/types";
+import type { CollectionData } from "@/lib/types";
 
-// ─── Fallback data ──────────────────────────────────────────────────────────
-const fallbackCategories: CategoryData[] = [
-  {
-    id: "1",
-    name: "Gold Sets",
-    slug: "Gold Sets",
-    image: "/gold-sets/Ornate Elegance Gold Set.png",
-    href: "/collections?category=Gold+Sets",
-    order: 1,
-  },
-  {
-    id: "2",
-    name: "Bridal Sets",
-    slug: "Bridal Sets",
-    image: "/bridal-sets/Timeless Elegance Bridal Set.png",
-    href: "/collections?category=Bridal+Sets",
-    order: 2,
-  },
-  {
-    id: "3",
-    name: "Bangles & Kara",
-    slug: "Bangles & Kara",
-    image: "/bangles-kara/golden-crown-bangles.png",
-    href: "/collections?category=Bangles+%26+Kara",
-    order: 3,
-  },
-  {
-    id: "4",
-    name: "Mala Sets",
-    slug: "Mala Sets",
-    image: "/mala-sets/Celestial Bloom Mala.png",
-    href: "/collections?category=Mala+Sets",
-    order: 4,
-  },
-  {
-    id: "5",
-    name: "Chain & Locket Sets",
-    slug: "Chain & Locket Sets",
-    image: "/chain-locket-sets/Royal Pendant Chain.png",
-    href: "/collections?category=Chain+%26+Locket+Sets",
-    order: 5,
-  },
-];
-
-interface FeaturedCategoriesProps {
-  categories?: CategoryData[];
+interface FeaturedCollectionsProps {
+  collections?: CollectionData[];
 }
 
-export default function FeaturedCategories({
-  categories,
-}: FeaturedCategoriesProps) {
-  const items =
-    categories && categories.length > 0 ? categories : fallbackCategories;
+export default function FeaturedCollections({
+  collections,
+}: FeaturedCollectionsProps) {
+  const items = collections && collections.length > 0 ? collections : [];
 
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-white">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#C6A15B] mb-2">
-            Browse By Category
+            Browse By Collection
           </p>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Featured Categories
+            Featured Collections
           </h2>
           <div className="w-10 h-px bg-[#C6A15B] mx-auto" />
         </div>
 
-        {/* Top row: 3 categories */}
+        {items.length === 0 ? (
+          <div className="text-center py-16 text-gray-400 italic text-sm">
+            Collections coming soon. Add collection entries in Contentful.
+          </div>
+        ) : (
+          <>
+
+            {/* Top row: 3 collections */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-6 lg:mb-8">
           {items.slice(0, 3).map((category) => (
             <Link key={category.id} href={category.href}>
@@ -101,7 +63,7 @@ export default function FeaturedCategories({
           ))}
         </div>
 
-        {/* Bottom row: remaining categories (wider) */}
+        {/* Bottom row: remaining collections (wider) */}
         {items.length > 3 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {items.slice(3, 5).map((category) => (
@@ -130,6 +92,8 @@ export default function FeaturedCategories({
               </Link>
             ))}
           </div>
+        )}
+          </>
         )}
       </div>
     </section>

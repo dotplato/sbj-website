@@ -15,22 +15,20 @@ export interface VideoHeroData {
   video: string;
 }
 
-export interface CategoryData {
+export interface CollectionData {
   id: string;
   name: string;
   slug: string;
   image: string;
   href: string;
   order: number;
-}
-
-export interface WeddingGalleryItem {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  href: string;
-  order: number;
+  line?: "diamond" | "gold" | "watches";
+  audience?: string[]; // e.g. ["men","women"]
+  showInWeddingAlbum?: boolean;
+  /** When true, this collection is displayed as a spotlight section on the homepage */
+  showOnHomepage?: boolean;
+  /** Short marketing description shown under the collection name in the homepage spotlight */
+  homepageDescription?: string;
 }
 
 export interface ProductData {

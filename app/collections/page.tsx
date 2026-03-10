@@ -1,17 +1,13 @@
-import { getProducts, getCategories } from "@/lib/contentful";
-import {
-  categories as staticCategories,
-  categoryMetadata as staticCategoryMetadata,
-} from "@/lib/data";
+import { getProducts, getCollections } from "@/lib/contentful";
 import CollectionsClient from "./CollectionsClient";
 
 export const revalidate = 60;
 
 export default async function CollectionsPage() {
   // Fetch from CMS — products AND categories
-  const [cmsProducts, cmsCategories] = await Promise.all([
+  const [cmsProducts, cmsCollections] = await Promise.all([
     getProducts(),
-    getCategories(),
+    getCollections(),
   ]);
 
   // ── Category list: derive from products first (ensures exact match) ───────
@@ -26,22 +22,17 @@ export default async function CollectionsPage() {
   const categoryNames: string[] =
     productCategoryNames.length > 0
       ? productCategoryNames
-      : cmsCategories.length > 0
-        ? cmsCategories.map((c) => c.name)
-        : staticCategories;
+      : cmsCollections.length > 0
+        ? cmsCollections.map((c) => c.name)
+        : [];
 
   // ── Category metadata (image for hero) ────────────────────────────────────
   const categoryMeta: Record<string, { image?: string }> =
-    cmsCategories.length > 0
+    cmsCollections.length > 0
       ? Object.fromEntries(
-          cmsCategories.map((c) => [c.name, { image: c.image || undefined }]),
+          cmsCollections.map((c) => [c.name, { image: c.image || undefined }]),
         )
-      : Object.fromEntries(
-          Object.entries(staticCategoryMetadata).map(([key, val]) => [
-            key,
-            { image: val.image },
-          ]),
-        );
+      : {};
 
   // ── Products: CMS only ────────────────────────────────────────────────────
   // Pass whatever the CMS returns. Empty = show nothing (not static fallback).

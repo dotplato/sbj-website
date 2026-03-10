@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -7,9 +7,22 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, User, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { categories } from "@/lib/data";
+import type { CollectionData } from "@/lib/types";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 
-export default function Header() {
+interface HeaderProps {
+  collections: CollectionData[];
+}
+
+export default function Header({ collections }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isJwrOpen, setIsJwrOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -23,6 +36,25 @@ export default function Header() {
   const isTransparent = isHome && !isScrolled;
   const headerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Sort collections once for stable nav ordering
+  const sortedCollections = [...collections].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+  );
+
+  // Helper: filter collections by line & audience
+  const byLineAndAudience = (
+    line: "diamond" | "gold" | "watches",
+    audience: "men" | "women" | "kids",
+  ) => {
+    const targetLine = line.toLowerCase();
+    const targetAudience = audience.toLowerCase();
+    return sortedCollections.filter((c) => {
+      const cLine = (c.line || "").toLowerCase();
+      const audiences = (c.audience || []).map((a) => a.toLowerCase());
+      return cLine === targetLine && audiences.includes(targetAudience);
+    });
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +113,7 @@ export default function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex-shrink-0"
+            className="shrink-0"
             onClick={() => setIsMenuOpen(false)}
           >
             <Image
@@ -103,45 +135,158 @@ export default function Header() {
               Home
             </Link>
 
-            {/* Jewelry Dropdown trigger */}
-            <div className="relative group">
-              <button
-                className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${isTransparent ? "text-white" : "text-gray-600"}`}
-                onMouseEnter={() => setIsJwrOpen(true)}
-                onClick={() => setIsJwrOpen(!isJwrOpen)}
-              >
-                Products <ChevronDown className="w-4 h-4" />
-              </button>
+            {/* Diamond menu */}
+            <DropdownMenu open={isJwrOpen} onOpenChange={setIsJwrOpen}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
+                    isTransparent ? "text-white" : "text-gray-600"
+                  } focus:outline-none focus-visible:outline-none`}
+                >
+                  Diamond <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {byLineAndAudience("diamond", "men").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Men</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("diamond", "men").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("diamond", "women").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Women</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("diamond", "women").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("diamond", "kids").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Kids</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("diamond", "kids").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              {/* Mega-style dropdown or direct list */}
-              <div
-                className={`absolute left-0 mt-4 w-64 bg-white border border-gray-100 shadow-xl py-4 transition-all duration-300 transform ${isJwrOpen
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-2 pointer-events-none"
-                  }`}
-                onMouseLeave={() => setIsJwrOpen(false)}
-              >
-                {categories.map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/collections?category=${encodeURIComponent(cat)}`}
-                    onClick={() => setIsJwrOpen(false)}
-                    className="block px-6 py-2.5 text-xs tracking-widest uppercase text-gray-600 hover:bg-gray-50 hover:text-[#C6A15B] transition-colors"
-                  >
-                    {cat}
-                  </Link>
-                ))}
-                <div className="border-t border-gray-50 mt-2 pt-2">
-                  <Link
-                    href="/collections"
-                    onClick={() => setIsJwrOpen(false)}
-                    className="block px-6 py-2.5 text-xs tracking-widest uppercase text-[#C6A15B] font-bold"
-                  >
-                    View All Collections
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Gold menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
+                    isTransparent ? "text-white" : "text-gray-600"
+                  } focus:outline-none focus-visible:outline-none`}
+                >
+                  Gold <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {byLineAndAudience("gold", "men").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Men</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("gold", "men").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("gold", "women").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Women</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("gold", "women").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("gold", "kids").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Kids</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("gold", "kids").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Watches menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
+                    isTransparent ? "text-white" : "text-gray-600"
+                  } focus:outline-none focus-visible:outline-none`}
+                >
+                  Watches <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {byLineAndAudience("watches", "men").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Men</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("watches", "men").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("watches", "women").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Women</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("watches", "women").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+                {byLineAndAudience("watches", "kids").length > 0 && (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Kids</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {byLineAndAudience("watches", "kids").map((col) => (
+                        <DropdownMenuItem key={col.id} asChild>
+                          <Link href={col.href}>{col.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link
               href="/sale"
               className={`text-sm font-bold transition-colors tracking-wide uppercase ${isTransparent ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"}`}
@@ -249,17 +394,17 @@ export default function Header() {
             </Link>
             <div className="px-4 py-2">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                Jewelry Categories
+                Collections
               </p>
               <div className="grid grid-cols-1 gap-2 pl-2 border-l-2 border-gray-100">
-                {categories.map((cat) => (
+                {sortedCollections.map((col) => (
                   <Link
-                    key={cat}
-                    href={`/collections?category=${encodeURIComponent(cat)}`}
+                    key={col.id}
+                    href={col.href}
                     onClick={() => setIsMenuOpen(false)}
                     className="text-xs text-gray-600 py-1 hover:text-[#C6A15B]"
                   >
-                    {cat}
+                    {col.name}
                   </Link>
                 ))}
               </div>

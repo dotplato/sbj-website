@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { WeddingGalleryItem } from "@/lib/types";
+import type { CollectionData } from "@/lib/types";
 
 interface WeddingGalleryProps {
-  items?: WeddingGalleryItem[];
+  collections?: CollectionData[];
 }
 
-export default function WeddingGallery({ items }: WeddingGalleryProps) {
-  const hasItems = items && items.length > 0;
+export default function WeddingGallery({ collections }: WeddingGalleryProps) {
+  const hasItems = collections && collections.length > 0;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-white">
@@ -19,19 +19,19 @@ export default function WeddingGallery({ items }: WeddingGalleryProps) {
             The Journey of Elegance
           </p>
           <h2 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-            Heritage Wedding Diaries
+            Wedding Album
           </h2>
           <div className="w-16 h-px bg-[var(--brand-gold)] mx-auto" />
         </div>
 
         {hasItems ? (
-          <GalleryGrid items={items!} />
+          <GalleryGrid collections={collections!} />
         ) : (
           // Empty state — shown when no CMS entries exist yet
           <div className="text-center py-20 text-gray-400 italic text-sm">
-            Gallery coming soon. Add entries in Contentful under{" "}
+            Wedding album coming soon. Mark collections in Contentful with{" "}
             <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
-              weddingGallery
+              showInWeddingAlbum = true
             </span>
             .
           </div>
@@ -42,10 +42,10 @@ export default function WeddingGallery({ items }: WeddingGalleryProps) {
 }
 
 /** Masonry-style 4-column grid — adapts to any number of items */
-function GalleryGrid({ items }: { items: WeddingGalleryItem[] }) {
+function GalleryGrid({ collections }: { collections: CollectionData[] }) {
   // Distribute items across 4 columns top-to-bottom
-  const columns: WeddingGalleryItem[][] = [[], [], [], []];
-  items.forEach((item, i) => columns[i % 4].push(item));
+  const columns: CollectionData[][] = [[], [], [], []];
+  collections.forEach((item, i) => columns[i % 4].push(item));
 
   // Alternating aspect ratios per column for visual rhythm
   const aspectPatterns = [
@@ -80,7 +80,7 @@ function GalleryCard({
   item,
   aspect,
 }: {
-  item: WeddingGalleryItem;
+  item: CollectionData;
   aspect: string;
 }) {
   return (
@@ -89,17 +89,14 @@ function GalleryCard({
     >
       <Image
         src={item.image}
-        alt={item.title}
+        alt={item.name}
         fill
         className="object-cover grayscale hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500" />
       <div className="absolute inset-0 flex flex-col items-center justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 text-center">
-        <span className="text-[9px] text-[var(--brand-gold)] font-bold tracking-[0.3em] uppercase mb-2">
-          {item.category}
-        </span>
         <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
-          {item.title}
+          {item.name}
         </h3>
       </div>
     </div>

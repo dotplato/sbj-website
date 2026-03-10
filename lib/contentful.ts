@@ -2,9 +2,8 @@ import { createClient, type Asset } from "contentful";
 import type {
   HeroSlide,
   VideoHeroData,
-  CategoryData,
+  CollectionData,
   ProductData,
-  WeddingGalleryItem,
 } from "./types";
 
 // ─── Client ─────────────────────────────────────────────────────────────────
@@ -105,8 +104,8 @@ export async function getVideoHero(): Promise<VideoHeroData | null> {
 }
 
 /**
- * Fetch categories from Contentful.
- * Content type: `category`
+ * Fetch collections from Contentful.
+ * Content type: `category` (CMS model name can be "Collection", ID stays `category`)
  *
  * Fields expected:
  *   - name (Short Text)
@@ -114,7 +113,7 @@ export async function getVideoHero(): Promise<VideoHeroData | null> {
  *   - image (Media — image)
  *   - order (Integer — display order)
  */
-export async function getCategories(): Promise<CategoryData[]> {
+export async function getCollections(): Promise<CollectionData[]> {
   try {
     const entries = await client.getEntries({
       content_type: "category",
@@ -133,6 +132,16 @@ export async function getCategories(): Promise<CategoryData[]> {
         image: assetUrl(f.image),
         href: `/collections?category=${encodeURIComponent(name)}`,
         order: f.order || 0,
+        line: (f.line as any) || undefined,
+        audience: Array.isArray(f.audience)
+          ? (f.audience as string[])
+          : undefined,
+        showInWeddingAlbum: f.showInWeddingAlbum === true,
+        showOnHomepage: f.showOnHomepage === true,
+        homepageDescription:
+          typeof f.homepageDescription === "string"
+            ? f.homepageDescription
+            : undefined,
       };
     });
   } catch (error) {
@@ -143,47 +152,54 @@ export async function getCategories(): Promise<CategoryData[]> {
 
 // ─── Product helpers ────────────────────────────────────────────────────────
 
+type LinkedEntry = {
+  sys: { id: string };
+  fields?: Record<string, any>;
+};
+
+type EntryLookup = Map<string, LinkedEntry>;
+
 /** Parse a single product entry into our ProductData shape */
-function parseProduct(item: any): ProductData {
+function parseProduct(item: any, includes?: EntryLookup): ProductData {
   const f = item.fields as Record<string, any>;
 
-  // ── Resolve category reference ────────────────────────────────────────
-  // Primary: `category` field as a single Reference → `category` entry.
-  // Fallbacks:
-  //   - `category` as a plain string
-  //   - `categories` as an array of References or strings
-  // This makes the site resilient to slight differences in the CMS model.
+  // ── Resolve category reference via includes ────────────────────────────
   let categoryName = "";
   let categoryId: string | undefined;
 
-  const extractCategoryFromRef = (ref: any) => {
-    if (ref && typeof ref === "object" && ref.sys) {
-      return {
-        id: ref.sys.id as string | undefined,
-        name: ref.fields?.name || "",
-      };
-    }
-    if (typeof ref === "string") {
-      return {
-        id: undefined,
-        name: ref,
-      };
-    }
-    return { id: undefined, name: "" };
+  const resolveCategoryById = (id?: string) => {
+    if (!id || !includes)
+      return { id: undefined as string | undefined, name: "" };
+    const entry = includes.get(id);
+    if (!entry || !entry.fields) return { id, name: "" };
+    const ef = entry.fields;
+    const nameField =
+      ef.name ||
+      ef.title ||
+      (typeof ef.categoryName === "string" ? ef.categoryName : "");
+    return { id, name: nameField || "" };
   };
 
-  if (f.category) {
-    // Single reference or string
-    const extracted = extractCategoryFromRef(f.category);
-    categoryId = extracted.id;
-    categoryName = extracted.name;
+  if (Array.isArray(f.category) && f.category.length > 0) {
+    const first = f.category[0];
+    const id = first?.sys?.id as string | undefined;
+    const resolved = resolveCategoryById(id);
+    categoryId = resolved.id;
+    categoryName = resolved.name;
+  } else if (f.category && typeof f.category === "object" && f.category.sys) {
+    const id = f.category.sys.id as string | undefined;
+    const resolved = resolveCategoryById(id);
+    categoryId = resolved.id;
+    categoryName = resolved.name;
+  } else if (typeof f.category === "string") {
+    categoryName = f.category;
   } else if (Array.isArray(f.categories) && f.categories.length > 0) {
-    // Multi-reference / multi-select field — take the first for now
-    const extracted = extractCategoryFromRef(f.categories[0]);
-    categoryId = extracted.id;
-    categoryName = extracted.name;
+    const first = f.categories[0];
+    const id = first?.sys?.id as string | undefined;
+    const resolved = resolveCategoryById(id);
+    categoryId = resolved.id;
+    categoryName = resolved.name;
   } else if (typeof f.categories === "string") {
-    // Plain string in `categories`
     categoryName = f.categories;
   }
 
@@ -198,31 +214,37 @@ function parseProduct(item: any): ProductData {
     }
   }
 
-  // ── Sale logic (CMS-controlled) ───────────────────────────────────────
-  // `isOnSale`      — Boolean toggle in CMS
-  // `salePrice`     — the reduced price shown when on sale (Short Text)
-  // `salePriceNum`  — numeric reduced price (Number)
-  // `originalPrice` — the crossed-out original price (Short Text)
-  //
-  // When isOnSale is OFF, we just show `price` / `priceNum` normally.
-  // When isOnSale is ON, the UI shows:
-  //     salePrice (red)  +  originalPrice (line-through)
+  // ── Price & sale (numeric in CMS, formatted in UI) ────────────────────
   const isOnSale: boolean = f.isOnSale === true;
+  const basePriceNum: number =
+    typeof f.priceNumber === "number"
+      ? f.priceNumber
+      : typeof f.priceNum === "number"
+        ? f.priceNum
+        : 0;
+  const salePriceNum: number | undefined =
+    isOnSale && typeof f.salePriceNum === "number" ? f.salePriceNum : undefined;
+
+  const formatPrice = (n: number) =>
+    "Rs. " + n.toLocaleString("en-PK", { maximumFractionDigits: 0 });
 
   return {
     id: item.sys.id,
     slug: f.slug || "",
     name: f.name || "",
     sku: f.sku || "",
-    price: f.price || "",
-    priceNum: f.priceNum || 0,
+    // Single numeric source of truth; display string is derived
+    price: formatPrice(basePriceNum),
+    priceNum: basePriceNum,
     images: assetUrls(f.images),
     category: categoryName,
     categoryId,
     isOnSale,
-    salePrice: isOnSale ? f.salePrice || undefined : undefined,
-    salePriceNum: isOnSale ? f.salePriceNum || undefined : undefined,
-    originalPrice: isOnSale ? f.originalPrice || undefined : undefined,
+    salePrice: salePriceNum ? formatPrice(salePriceNum) : undefined,
+    salePriceNum: salePriceNum,
+    originalPrice: isOnSale
+      ? f.originalPrice || formatPrice(basePriceNum)
+      : undefined,
     description: f.description || undefined,
     bullets: f.bullets || undefined,
     options: f.options || undefined,
@@ -256,8 +278,19 @@ export async function getProducts(): Promise<ProductData[]> {
       include: 2,
       limit: 1000,
     });
+    const includes: EntryLookup = new Map();
+    const includedEntries = (entries as any).includes?.Entry as
+      | LinkedEntry[]
+      | undefined;
+    if (includedEntries) {
+      for (const e of includedEntries) {
+        if (e?.sys?.id) {
+          includes.set(e.sys.id, e);
+        }
+      }
+    }
 
-    return entries.items.map(parseProduct);
+    return entries.items.map((item) => parseProduct(item, includes));
   } catch (error) {
     console.error("Failed to fetch products from Contentful:", error);
     return [];
@@ -279,7 +312,19 @@ export async function getProductBySlug(
     } as any);
 
     if (entries.items.length === 0) return null;
-    return parseProduct(entries.items[0]);
+    const includes: EntryLookup = new Map();
+    const includedEntries = (entries as any).includes?.Entry as
+      | LinkedEntry[]
+      | undefined;
+    if (includedEntries) {
+      for (const e of includedEntries) {
+        if (e?.sys?.id) {
+          includes.set(e.sys.id, e);
+        }
+      }
+    }
+
+    return parseProduct(entries.items[0], includes);
   } catch (error) {
     console.error("Failed to fetch product from Contentful:", error);
     return null;
@@ -303,56 +348,4 @@ export async function getProductsByCategory(
   }
 }
 
-/**
- * Fetch wedding gallery items from Contentful.
- * Content type: `weddingGallery`
- *
- * Fields expected:
- *   - title    (Short Text)
- *   - category (Reference → `category` entry)  ← same as product
- *   - image    (Media — single image)
- *   - order    (Integer — display order 1–8)
- *
- * Note: `href` is auto-generated from the resolved category name.
- * No separate href field needed in Contentful.
- */
-export async function getWeddingGallery(): Promise<WeddingGalleryItem[]> {
-  try {
-    const entries = await client.getEntries({
-      content_type: "weddingGallery",
-      order: ["fields.order"] as any,
-      include: 2, // ensures the category reference is resolved
-    });
-
-    return entries.items.map((item) => {
-      const f = item.fields as Record<string, any>;
-
-      // ── Resolve category Reference (same pattern as products) ──────────
-      let categoryName = "";
-      if (f.category && typeof f.category === "object" && f.category.sys) {
-        // Resolved reference — pull the name from the linked category entry
-        categoryName = f.category.fields?.name || "";
-      } else if (typeof f.category === "string") {
-        // Fallback: plain string (shouldn't happen with a Reference field)
-        categoryName = f.category;
-      }
-
-      // Auto-generate href from the category name
-      const href = categoryName
-        ? `/collections?category=${encodeURIComponent(categoryName)}`
-        : "/collections";
-
-      return {
-        id: item.sys.id,
-        title: f.title || "",
-        category: categoryName,
-        image: assetUrl(f.image),
-        href,
-        order: f.order || 0,
-      };
-    });
-  } catch (error) {
-    console.error("Failed to fetch wedding gallery from Contentful:", error);
-    return [];
-  }
-}
+// Note: old `weddingGallery` content type is no longer used.
