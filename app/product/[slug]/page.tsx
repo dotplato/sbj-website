@@ -51,7 +51,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       product.options && product.options.length > 0
         ? product.options
         : defaultOptions,
-    descriptionText: product.description || defaultDescription,
+    // Pass through rich text document as-is, or fall back to plain string default
+    descriptionText: product.description ?? defaultDescription,
   };
 
   // Related products from CMS (same category)

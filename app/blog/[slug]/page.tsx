@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CalendarDays, User, Tag, ArrowLeft } from "lucide-react";
 import { getBlogBySlug, getBlogs } from "@/lib/contentful";
 import SectionReveal from "@/components/SectionReveal";
+import RichTextRenderer from "@/components/RichTextRenderer";
 
 export const revalidate = 60;
 
@@ -120,12 +121,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Divider */}
           <div className="w-16 h-px bg-[#C6A15B] mb-10" />
 
-          {/* Full body — rendered as pre-wrap to preserve paragraph breaks */}
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
-            {post.body || (
-              <span className="text-gray-400 italic">Content coming soon.</span>
-            )}
-          </div>
+          {/* Full body — rendered as rich text */}
+          <RichTextRenderer
+            content={post.body}
+            variant="blog"
+            className="max-w-none"
+          />
 
           {/* Back link */}
           <div className="mt-16 pt-8 border-t border-gray-100">
