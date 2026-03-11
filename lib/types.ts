@@ -1,5 +1,6 @@
 // ─── CMS Types ──────────────────────────────────────────────────────────────
 
+
 export interface HeroSlide {
   id: string;
   video: string;
@@ -48,4 +49,22 @@ export interface ProductData {
   description?: string; // single field for product description (covers specs + details)
   bullets?: string[];
   options?: string[];
+}
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  /** Short teaser shown in cards */
+  excerpt: string;
+  /** Full rich-text body stored as plain text or markdown */
+  body: string;
+  /** Cover / featured image URL */
+  coverImage: string;
+  /** Author name */
+  author: string;
+  /** ISO date string */
+  publishedAt: string;
+  /** Optional category tag, e.g. "Jewellery Tips" */
+  category?: string;
 }

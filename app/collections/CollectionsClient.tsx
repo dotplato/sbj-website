@@ -255,6 +255,13 @@ function ProductCard({ product }: { product: ProductData }) {
             </span>
           )}
         </div>
+
+        {/* Hover overlay — "View Details" button */}
+        <div className="absolute inset-0 flex items-end justify-center pb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-400 bg-black/10">
+          <span className="bg-[#C6A15B] text-white text-[10px] font-bold tracking-[0.2em] uppercase px-6 py-2.5 translate-y-3 group-hover:translate-y-0 transition-transform duration-400 shadow-lg">
+            View Details
+          </span>
+        </div>
       </div>
 
       <div className="text-center px-2">

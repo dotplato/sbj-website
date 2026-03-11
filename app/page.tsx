@@ -7,22 +7,25 @@ import ReviewsSection from "@/components/ReviewsSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import SectionReveal from "@/components/SectionReveal";
 import CollectionSpotlight from "@/components/CollectionSpotlight";
+import BlogSection from "@/components/BlogSection";
 import {
   getHeroSlides,
   getVideoHero,
   getCollections,
   getProducts,
+  getBlogs,
 } from "@/lib/contentful";
 
 export const revalidate = 60;
 
 export default async function Home() {
   // Fetch all CMS data in parallel (server-side)
-  const [heroSlides, videoHeroData, collections, products] = await Promise.all([
+  const [heroSlides, videoHeroData, collections, products, blogs] = await Promise.all([
     getHeroSlides(),
     getVideoHero(),
     getCollections(),
     getProducts(),
+    getBlogs(),
   ]);
 
   // Find the collection that should be spotlighted on homepage
@@ -39,11 +42,7 @@ export default async function Home() {
           collections={collections.filter((c) => (c as any).showInWeddingAlbum)}
         />
       </SectionReveal>
-       {spotlightCollection && (
-        <SectionReveal>
-          <CollectionSpotlight collection={spotlightCollection} />
-        </SectionReveal>
-      )}
+       
       <SectionReveal>
         <FeaturedCollections collections={collections} />
       </SectionReveal>
@@ -52,6 +51,14 @@ export default async function Home() {
       </SectionReveal>
       <SectionReveal>
         <VideoHero data={videoHeroData} />
+      </SectionReveal>
+      {spotlightCollection && (
+        <SectionReveal>
+          <CollectionSpotlight collection={spotlightCollection} />
+        </SectionReveal>
+      )}
+      <SectionReveal>
+        <BlogSection posts={blogs} />
       </SectionReveal>
       <SectionReveal>
         <FeaturesSection />

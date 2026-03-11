@@ -4,6 +4,7 @@ import type {
   VideoHeroData,
   CollectionData,
   ProductData,
+  BlogPost,
 } from "./types";
 
 // ─── Client ─────────────────────────────────────────────────────────────────
@@ -349,3 +350,81 @@ export async function getProductsByCategory(
 }
 
 // Note: old `weddingGallery` content type is no longer used.
+
+// ─── Blog Fetchers ───────────────────────────────────────────────────────────
+
+/**
+ * Fetch blog posts from Contentful.
+ * Content type: `blogPost`
+ *
+ * Fields expected in Contentful:
+ *   - title        (Short Text)
+ *   - slug         (Short Text — URL-safe, unique)
+ *   - excerpt      (Long Text — 1-2 sentence teaser)
+ *   - body         (Long Text — full article content, markdown supported)
+ *   - coverImage   (Media — image)
+ *   - author       (Short Text — author display name)
+ *   - publishedAt  (Date — ISO date)
+ *   - category     (Short Text — optional tag, e.g. "Jewellery Tips")
+ */
+export async function getBlogs(): Promise<BlogPost[]> {
+  try {
+    const entries = await client.getEntries({
+      content_type: "blogPost",
+      order: ["-fields.publishedAt"] as any,
+      include: 2,
+      limit: 100,
+    });
+
+    return entries.items.map((item) => {
+      const f = item.fields as Record<string, any>;
+      return {
+        id: item.sys.id,
+        slug: f.slug || item.sys.id,
+        title: f.title || "",
+        excerpt: f.excerpt || "",
+        body: f.body || "",
+        coverImage: assetUrl(f.coverImage),
+        author: f.author || "SBJ Team",
+        publishedAt: f.publishedAt || item.sys.createdAt,
+        category: f.category || undefined,
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch blog posts from Contentful:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetch a single blog post by its slug.
+ */
+export async function getBlogBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const entries = await client.getEntries({
+      content_type: "blogPost",
+      "fields.slug": slug,
+      include: 2,
+      limit: 1,
+    } as any);
+
+    if (entries.items.length === 0) return null;
+
+    const item = entries.items[0];
+    const f = item.fields as Record<string, any>;
+    return {
+      id: item.sys.id,
+      slug: f.slug || item.sys.id,
+      title: f.title || "",
+      excerpt: f.excerpt || "",
+      body: f.body || "",
+      coverImage: assetUrl(f.coverImage),
+      author: f.author || "SBJ Team",
+      publishedAt: f.publishedAt || item.sys.createdAt,
+      category: f.category || undefined,
+    };
+  } catch (error) {
+    console.error("Failed to fetch blog post from Contentful:", error);
+    return null;
+  }
+}
