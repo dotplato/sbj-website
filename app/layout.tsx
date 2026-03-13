@@ -7,6 +7,7 @@ import CartDrawer from "@/components/CartDrawer";
 import FloatingReviews from "@/components/FloatingReviews";
 import { CartProvider } from "@/context/CartContext";
 import { Toaster } from "@/components/ui/sonner";
+import { getCollections } from "@/lib/contentful";
 
 const funnelDisplay = Funnel_Display({
   subsets: ["latin"],
@@ -24,18 +25,20 @@ export const metadata: Metadata = {
   description: "Premium Jewellery crafted with excellence",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const collections = await getCollections();
+
   return (
     <html lang="en">
       <body
         className={`${funnelDisplay.variable} ${gwendolyn.variable} font-sans antialiased`}
       >
         <CartProvider>
-          <Header />
+          <Header collections={collections} />
           {children}
           <Footer />
           <CartDrawer />

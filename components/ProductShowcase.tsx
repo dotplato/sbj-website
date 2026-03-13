@@ -12,10 +12,43 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { products } from "@/lib/data";
+import type { ProductData } from "@/lib/types";
+
+// ─── Unified product type for display ───────────────────────────────────────
+type DisplayProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  sku: string;
+  price: string;
+  priceNum: number;
+  images: string[];
+  category: string;
+  isOnSale: boolean;
+  salePrice?: string;
+  originalPrice?: string;
+};
+
+/** Map CMS data to display shape */
+function cmsToDisplay(p: ProductData): DisplayProduct {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    sku: p.sku,
+    // When on sale, show salePrice as main price and originalPrice crossed out
+    price: p.isOnSale && p.salePrice ? p.salePrice : p.price,
+    priceNum: p.isOnSale && p.salePriceNum ? p.salePriceNum : p.priceNum,
+    images: p.images,
+    category: p.category,
+    isOnSale: p.isOnSale,
+    salePrice: p.salePrice,
+    originalPrice: p.isOnSale ? p.originalPrice || p.price : undefined,
+  };
+}
 
 interface ProductCardProps {
-  product: (typeof products)[0];
+  product: DisplayProduct;
 }
 
 function ProductCard({ product }: ProductCardProps) {
@@ -35,6 +68,15 @@ function ProductCard({ product }: ProductCardProps) {
     <Card className="group bg-[#f5f5f5] border-0 shadow-none transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
       {/* Inner Image Carousel */}
       <div className="relative h-[380px] sm:h-[420px] flex items-center justify-center">
+        {/* Sale Badge */}
+        {product.isOnSale && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-red-600 text-white text-[9px] font-bold tracking-widest uppercase px-3 py-1 shadow-sm">
+              Sale
+            </span>
+          </div>
+        )}
+
         <Carousel setApi={setApi} opts={{ loop: true }} className="w-full">
           <CarouselContent>
             {product.images.map((img, index) => (
@@ -77,11 +119,22 @@ function ProductCard({ product }: ProductCardProps) {
 
         <p className="text-sm text-gray-500 mb-3">{product.sku}</p>
 
-        <p className="text-lg font-semibold" style={{ color: "#C6A15B" }}>
-          {product.price}
-        </p>
+        {/* Price display — sale-aware */}
+        <div className="flex items-center justify-center gap-2">
+          <p
+            className={`text-lg font-semibold ${product.isOnSale ? "text-red-600" : ""}`}
+            style={product.isOnSale ? {} : { color: "#C6A15B" }}
+          >
+            {product.price}
+          </p>
+          {product.isOnSale && product.originalPrice && (
+            <p className="text-sm text-gray-400 line-through">
+              {product.originalPrice}
+            </p>
+          )}
+        </div>
 
-        {/* Hover Button (always visible on mobile, hover-reveal on desktop) */}
+        {/* Hover Button */}
         <div className="mt-4">
           <Link href={`/product/${product.slug}`}>
             <Button
@@ -97,7 +150,19 @@ function ProductCard({ product }: ProductCardProps) {
   );
 }
 
-export default function ProductShowcase() {
+interface ProductShowcaseProps {
+  products?: ProductData[];
+}
+
+export default function ProductShowcase({ products }: ProductShowcaseProps) {
+  // CMS only — show up to 10 products
+  const displayProducts: DisplayProduct[] =
+    products && products.length > 0
+      ? products.slice(0, 10).map(cmsToDisplay)
+      : [];
+
+  if (displayProducts.length === 0) return null;
+
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -121,7 +186,7 @@ export default function ProductShowcase() {
           className="w-full"
         >
           <CarouselContent className="-ml-6">
-            {products.slice(0, 10).map((product) => (
+            {displayProducts.map((product) => (
               <CarouselItem
                 key={product.id}
                 className="pl-6 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"

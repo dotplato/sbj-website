@@ -3,8 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import type { VideoHeroData } from "@/lib/types";
 
-export default function VideoHero() {
+// ─── Hardcoded button (never changes) ───────────────────────────────────────
+const BUTTON_TEXT = "Shop the Collection";
+const BUTTON_LINK = "/collections";
+
+// ─── Fallback data (video + text only) ──────────────────────────────────────
+const fallbackData: VideoHeroData = {
+  subtitle: "The Art of Heritage",
+  title: "Where every gem has a story, and every visit is a journey!",
+  description:
+    "Discover the perfect piece of jewelry that tells your unique story. Our collection features exquisite designs crafted with passion and precision.",
+  video: "/video-hero.mp4",
+};
+
+interface VideoHeroProps {
+  data?: VideoHeroData | null;
+}
+
+export default function VideoHero({ data }: VideoHeroProps) {
+  const content = data || fallbackData;
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -23,13 +43,8 @@ export default function VideoHero() {
           playPromise = video.play();
         } else {
           setIsVisible(false);
-          // Wait for play() to resolve before pausing to avoid AbortError
           if (playPromise !== undefined) {
-            playPromise
-              .then(() => video.pause())
-              .catch(() => {
-                // play() was already interrupted — safe to ignore
-              });
+            playPromise.then(() => video.pause()).catch(() => {});
           } else {
             video.pause();
           }
@@ -44,12 +59,14 @@ export default function VideoHero() {
 
     return () => {
       observer.disconnect();
-      // Clean up on unmount
       if (playPromise !== undefined) {
-        playPromise.then(() => video.pause()).catch(() => { });
+        playPromise.then(() => video.pause()).catch(() => {});
       }
     };
   }, []);
+
+  // Split title at <br> or \n for line breaks
+  const titleParts = content.title.split(/\\n|\n/);
 
   return (
     <section
@@ -65,10 +82,7 @@ export default function VideoHero() {
         playsInline
         preload="metadata"
       >
-        <source
-          src="/video-hero.mp4"
-          type="video/mp4"
-        />
+        <source src={content.video} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -80,28 +94,33 @@ export default function VideoHero() {
         <div className="max-w-3xl space-y-8">
           <div className="space-y-4">
             <p className="text-[10px] sm:text-sm font-semibold text-[#C6A15B] uppercase tracking-[0.4em] animate-in fade-in slide-in-from-bottom duration-700">
-              The Art of Heritage
+              {content.subtitle}
             </p>
             <h2 className="text-3xl sm:text-6xl lg:text-7xl font-fancy text-white leading-tight tracking-wider animate-in fade-in slide-in-from-bottom duration-1000">
-              Where every gem has a story, <br className="hidden sm:block" />{" "}
-              and every visit is a journey!
+              {titleParts.map((part, i) => (
+                <span key={i}>
+                  {part}
+                  {i < titleParts.length - 1 && (
+                    <br className="hidden sm:block" />
+                  )}
+                  {i < titleParts.length - 1 && " "}
+                </span>
+              ))}
             </h2>
           </div>
 
           <p className="text-xs sm:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed font-light animate-in fade-in slide-in-from-bottom duration-1200">
-            Discover the perfect piece of jewelry that tells your unique story.
-            Our collection features exquisite designs crafted with passion and
-            precision.
+            {content.description}
           </p>
 
           <div className="pt-6 animate-in fade-in slide-in-from-bottom duration-1400">
-            <Link href="/collections">
+            <Link href={BUTTON_LINK}>
               <Button
                 size="lg"
                 className="text-white font-bold px-10 py-7 text-xs sm:text-sm tracking-[0.2em] uppercase rounded-none transition-all duration-300 shadow-2xl hover:scale-105"
                 style={{ backgroundColor: "#C6A15B" }}
               >
-                Shop the Collection
+                {BUTTON_TEXT}
               </Button>
             </Link>
           </div>
