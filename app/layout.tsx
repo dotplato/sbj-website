@@ -8,6 +8,7 @@ import FloatingReviews from "@/components/FloatingReviews";
 import { CartProvider } from "@/context/CartContext";
 import { Toaster } from "@/components/ui/sonner";
 import { getCollections } from "@/lib/contentful";
+import SplashScreen from "@/components/SplashScreen";
 
 const funnelDisplay = Funnel_Display({
   subsets: ["latin"],
@@ -37,14 +38,16 @@ export default async function RootLayout({
       <body
         className={`${funnelDisplay.variable} ${gwendolyn.variable} font-sans antialiased`}
       >
-        <CartProvider>
-          <Header collections={collections} />
-          {children}
-          <Footer />
-          <CartDrawer />
-          <FloatingReviews />
-          <Toaster />
-        </CartProvider>
+        <SplashScreen>
+          <CartProvider>
+            <Header collections={collections} />
+            {children}
+            <Footer />
+            <CartDrawer />
+            <FloatingReviews />
+            <Toaster />
+          </CartProvider>
+        </SplashScreen>
       </body>
     </html>
   );

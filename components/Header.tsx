@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { ShoppingCart, User, Menu, X, Search, ChevronDown } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import type { CollectionData } from "@/lib/types";
 import {
@@ -344,13 +344,6 @@ export default function Header({ collections }: HeaderProps) {
               ) : (
                 <Search className="h-5 w-5" />
               )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-inherit hover:text-[#C6A15B]"
-            >
-              <User className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
