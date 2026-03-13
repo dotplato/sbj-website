@@ -138,13 +138,14 @@ export default function Header({ collections }: HeaderProps) {
             {/* Diamond menu */}
             <DropdownMenu open={isJwrOpen} onOpenChange={setIsJwrOpen}>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
+                  variant="ghost"
                   className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
                     isTransparent ? "text-white" : "text-gray-600"
-                  } focus:outline-none focus-visible:outline-none`}
+                  } focus:outline-none focus-visible:outline-none h-auto p-0 hover:bg-transparent`}
                 >
                   Diamond <ChevronDown className="w-4 h-4" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {byLineAndAudience("diamond", "men").length > 0 && (
@@ -189,13 +190,14 @@ export default function Header({ collections }: HeaderProps) {
             {/* Gold menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
+                  variant="ghost"
                   className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
                     isTransparent ? "text-white" : "text-gray-600"
-                  } focus:outline-none focus-visible:outline-none`}
+                  } focus:outline-none focus-visible:outline-none h-auto p-0 hover:bg-transparent`}
                 >
                   Gold <ChevronDown className="w-4 h-4" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {byLineAndAudience("gold", "men").length > 0 && (
@@ -240,13 +242,14 @@ export default function Header({ collections }: HeaderProps) {
             {/* Watches menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
+                  variant="ghost"
                   className={`flex items-center gap-1 text-sm font-medium transition-colors tracking-wide hover:text-[#C6A15B] ${
                     isTransparent ? "text-white" : "text-gray-600"
-                  } focus:outline-none focus-visible:outline-none`}
+                  } focus:outline-none focus-visible:outline-none h-auto p-0 hover:bg-transparent`}
                 >
                   Watches <ChevronDown className="w-4 h-4" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {byLineAndAudience("watches", "men").length > 0 && (

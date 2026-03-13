@@ -8,6 +8,9 @@ import ProductShowcase from "@/components/ProductShowcase";
 import { useCart } from "@/context/CartContext";
 import SectionReveal from "@/components/SectionReveal";
 import type { ProductData } from "@/lib/types";
+import RichTextRenderer from "@/components/RichTextRenderer";
+import type { Document as RichTextDocument } from "@contentful/rich-text-types";
+import { Button } from "@/components/ui/button";
 
 // ─── Payment method icons (text-based badges) ──────────────────────────────
 const paymentMethods = [
@@ -28,7 +31,7 @@ const paymentMethods = [
 interface FullProduct extends ProductData {
   bullets: string[];
   options: string[];
-  descriptionText: string;
+  descriptionText: string | RichTextDocument;
 }
 
 interface ProductDetailClientProps {
@@ -142,11 +145,12 @@ function ProductDetail({ product }: { product: FullProduct }) {
           {/* Thumbnails */}
           <div className="flex flex-row lg:flex-col gap-3 lg:w-[90px] shrink-0 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] pb-2 lg:pb-0 scrollbar-hide">
             {product.images.map((img: string, i: number) => (
-              <button
+              <Button
                 key={i}
+                variant="outline"
                 onMouseEnter={() => setActiveImg(i)}
                 onClick={() => setActiveImg(i)}
-                className={`relative shrink-0 w-[70px] h-[70px] lg:w-[80px] lg:h-[80px] border-2 transition-all duration-200 ${
+                className={`relative shrink-0 w-[70px] h-[70px] lg:w-[80px] lg:h-[80px] border-2 transition-all duration-200 p-0 overflow-hidden ${
                   activeImg === i
                     ? "border-[#C6A15B]"
                     : "border-gray-200 hover:border-[#C6A15B]"
@@ -158,7 +162,7 @@ function ProductDetail({ product }: { product: FullProduct }) {
                   fill
                   className="object-cover"
                 />
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -236,45 +240,48 @@ function ProductDetail({ product }: { product: FullProduct }) {
               </p>
               <div className="flex flex-wrap gap-2">
                 {product.options.map((opt: string) => (
-                  <button
+                  <Button
                     key={opt}
+                    variant={selectedOption === opt ? "default" : "outline"}
                     onClick={() => setSelectedOption(opt)}
-                    className={`px-4 py-2 text-sm border rounded-full transition-all ${
+                    className={`px-4 py-2 text-sm rounded-full transition-all h-auto ${
                       selectedOption === opt
                         ? "bg-gray-900 text-white border-gray-900"
                         : "bg-white text-gray-700 border-gray-300"
                     }`}
                   >
                     {opt}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 mt-4">
               <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-none p-0"
                 >
                   −
-                </button>
+                </Button>
                 <span className="w-10 text-center text-sm font-medium">
                   {qty}
                 </span>
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setQty(qty + 1)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-none p-0"
                 >
                   +
-                </button>
+                </Button>
               </div>
-              <button
+              <Button
                 onClick={handleAddToCart}
-                className="flex-1 py-3 bg-[#C6A15B] text-white text-sm font-semibold tracking-widest uppercase rounded-full hover:bg-[#b8966b] transition-colors"
+                className="flex-1 py-3 bg-[#C6A15B] text-white text-sm font-semibold tracking-widest uppercase rounded-full hover:bg-[#b8966b] transition-colors h-auto"
               >
                 Add to Cart
-              </button>
+              </Button>
             </div>
 
             <div className="flex flex-wrap gap-1 mt-1">
@@ -297,15 +304,10 @@ function ProductDetail({ product }: { product: FullProduct }) {
               Description
             </span>
           </div>
-          <div className="max-w-3xl mx-auto space-y-2">
-            {product.descriptionText
-              .split("\n")
-              .map((line: string, i: number) => (
-                <p key={i} className="text-sm text-[#5a7a9a] leading-relaxed">
-                  {line || "\u00A0"}
-                </p>
-              ))}
-          </div>
+          <RichTextRenderer
+            content={product.descriptionText}
+            variant="product"
+          />
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 // ─── CMS Types ──────────────────────────────────────────────────────────────
+import type { Document as RichTextDocument } from "@contentful/rich-text-types";
 
 
 export interface HeroSlide {
@@ -46,7 +47,7 @@ export interface ProductData {
   salePrice?: string; // the discounted price text shown when on sale
   salePriceNum?: number; // numeric discounted price
   originalPrice?: string; // the original (crossed-out) price text
-  description?: string; // single field for product description (covers specs + details)
+  description?: string | RichTextDocument; // single field for product description (covers specs + details)
   bullets?: string[];
   options?: string[];
 }
@@ -57,8 +58,8 @@ export interface BlogPost {
   title: string;
   /** Short teaser shown in cards */
   excerpt: string;
-  /** Full rich-text body stored as plain text or markdown */
-  body: string;
+  /** Full rich-text body stored as plain text, markdown, or Contentful Rich Text document */
+  body: string | RichTextDocument;
   /** Cover / featured image URL */
   coverImage: string;
   /** Author name */
